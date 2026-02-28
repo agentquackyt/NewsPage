@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{SITE_TITLE}}</title>
+  <link rel="stylesheet" href="./themes/{{THEME}}.css" />
+</head>
+<body>
+  <header class="site-header" onclick="window.location.href='/'">
+    <div class="header-inner">
+      <h1 class="site-title">{{SITE_TITLE}}</h1>
+      <p class="site-tagline">{{SITE_DESCRIPTION}}</p>
+    </div>
+  </header>
+
+  <main class="site-main">
+    <article class="article-page" id="article-page">
+      <p class="loading-msg">Loading article…</p>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <p>&copy; {{SITE_TITLE}} · Built with NewsPage</p>
+  </footer>
+
+  <script src="./js/article.js"></script>
+</body>
+</html>

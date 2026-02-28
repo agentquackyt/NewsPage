@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NewsPage Editor</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: system-ui, sans-serif;
+            background: #f5f5f5;
+            color: #222;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #topbar {
+            background: #052962;
+            color: #fff;
+            padding: 0.6rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        #topbar h1 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            flex: 1;
+        }
+
+        #layout {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        #sidebar {
+            width: 260px;
+            background: #fff;
+            border-right: 1px solid #ddd;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #sidebar-header {
+            padding: 0.75rem 1rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            color: #666;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #article-list {
+            list-style: none;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        #article-list li {
+            padding: 0.7rem 1rem;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        #article-list li:hover {
+            background: #f0f5ff;
+        }
+
+        #article-list li.active {
+            background: #e6efff;
+            border-left: 3px solid #052962;
+        }
+
+        #article-list .item-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        #article-list .item-date {
+            font-size: 0.75rem;
+            color: #888;
+            margin-top: 2px;
+        }
+
+        #editor-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        #editor-toolbar {
+            padding: 0.5rem 1rem;
+            background: #fff;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        #editor-toolbar span {
+            font-size: 0.85rem;
+            font-weight: 600;
+            flex: 1;
+            color: #444;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        #editor-panels {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        #editor-left {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border-right: 1px solid #e0e0e0;
+        }
+
+        /* === Frontmatter panel === */
+        #fm-panel {
+            background: #f0f6e4;
+            border-bottom: 2px solid #b5d98a;
+            flex-shrink: 0;
+        }
+
+        #fm-header {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.45rem 0.9rem 0.35rem;
+            border-bottom: 1px solid #c8e6a0;
+        }
+
+        .fm-badge {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            background: #5a8a1f;
+            color: #fff;
+            padding: 0.15em 0.55em;
+            border-radius: 3px;
+        }
+
+        #fm-header .fm-hint {
+            font-size: 0.75rem;
+            color: #6a8a3a;
+        }
+
+        #fm-fields {
+            display: grid;
+            grid-template-columns: max-content 1fr;
+            align-items: center;
+            gap: 0.25rem 0.6rem;
+            padding: 0.55rem 0.9rem 0.65rem;
+        }
+
+        #fm-fields label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #4a7010;
+            font-family: 'Cascadia Code', 'Fira Code', monospace;
+            white-space: nowrap;
+        }
+
+        #fm-fields input {
+            font-family: 'Cascadia Code', 'Fira Code', monospace;
+            font-size: 0.82rem;
+            border: 1px solid #bada87;
+            border-radius: 3px;
+            padding: 0.2rem 0.45rem;
+            background: #f8fdf0;
+            color: #233;
+            outline: none;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        #fm-fields input:focus {
+            border-color: #5a8a1f;
+            background: #fff;
+        }
+
+        .fm-upload-group {
+            display: flex;
+            gap: 0.25rem;
+            width: 100%;
+        }
+
+        /* === Body textarea === */
+        #md-editor {
+            flex: 1;
+            padding: 1rem;
+            font-family: 'Cascadia Code', 'Fira Code', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            resize: none;
+            border: none;
+            outline: none;
+            background: #fafafa;
+            min-height: 0;
+        }
+
+        /* === Preview === */
+        #preview-panel {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0;
+            background: #fff;
+        }
+
+        .preview-fm-header {
+            background: #f0f6e4;
+            border-bottom: 2px solid #b5d98a;
+            padding: 1rem 2rem 0.9rem;
+        }
+
+        .preview-fm-header .pfm-badge {
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            color: #5a8a1f;
+            margin-bottom: 0.5rem;
+        }
+
+        .preview-fm-header .pfm-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin: 0 0 0.3rem;
+            line-height: 1.25;
+        }
+
+        .preview-fm-header .pfm-date {
+            font-size: 0.78rem;
+            color: #5a8a1f;
+            font-weight: 600;
+        }
+
+        .preview-fm-header .pfm-desc {
+            font-size: 0.88rem;
+            color: #555;
+            font-style: italic;
+            margin-top: 0.3rem;
+        }
+
+        .preview-body {
+            padding: 1.5rem 2rem;
+        }
+
+        #preview-panel h1,
+        #preview-panel h2,
+        #preview-panel h3 {
+            margin: 1rem 0 0.5rem;
+        }
+
+        #preview-panel p {
+            margin-bottom: 0.8rem;
+            line-height: 1.7;
+        }
+
+        #preview-panel code {
+            background: #f0f0f0;
+            padding: 0.1em 0.3em;
+            border-radius: 3px;
+            font-size: 0.88em;
+        }
+
+        #preview-panel pre {
+            background: #f4f4f4;
+            padding: 1rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin-bottom: 1rem;
+        }
+
+        #preview-panel pre code {
+            background: none;
+        }
+
+        #preview-panel blockquote {
+            border-left: 4px solid #ccc;
+            padding-left: 1rem;
+            color: #555;
+            margin-bottom: 1rem;
+        }
+
+        #empty-state {
+            display: flex;
+            flex: 1;
+            align-items: center;
+            justify-content: center;
+            color: #aaa;
+            font-size: 1rem;
+        }
+
+        .status-bar {
+            background: #eee;
+            padding: 0.25rem 1rem;
+            font-size: 0.78rem;
+            color: #666;
+            border-top: 1px solid #ddd;
+        }
+
+        #modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .5);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #modal-overlay.open {
+            display: flex;
+        }
+
+        #modal {
+            background: #fff;
+            border-radius: 8px;
+            padding: 1.5rem;
+            min-width: 340px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, .2);
+        }
+
+        #modal h2 {
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+
+        #modal input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        #modal .modal-actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+            margin-top: 1rem;
+        }
+
+        /* === Buttons === */
+        button,
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
+            padding: 0.4rem 1rem;
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            color: #333;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            font-family: inherit;
+            transition: all 0.15s ease;
+            white-space: nowrap;
+        }
+
+        button:hover,
+        .btn:hover {
+            background: #f0f0f0;
+            border-color: #bbb;
+        }
+        
+        button:active,
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        button.primary,
+        .btn.primary {
+            background: #052962;
+            color: #fff;
+            border-color: #052962;
+        }
+
+        button.primary:hover,
+        .btn.primary:hover {
+            background: #03193e;
+            border-color: #03193e;
+        }
+
+        button.danger,
+        .btn.danger {
+            background: #dc3545;
+            color: #fff;
+            border-color: #dc3545;
+        }
+
+        button.danger:hover,
+        .btn.danger:hover {
+            background: #c82333;
+            border-color: #c82333;
+        }
+
+        button.sm,
+        .btn.sm {
+            padding: 0.25rem 0.65rem;
+            font-size: 0.8rem;
+        }
+
+        button.inverse,
+        .btn.inverse {
+            background: #fff;
+            color: #052962;
+            border-color: transparent;
+            font-weight: 600;
+        }
+
+        button.inverse:hover,
+        .btn.inverse:hover {
+            background: #e8e8e8;
+            color: #052962;
+        }
+
+        button.success-light,
+        .btn.success-light {
+            background: #dcefc2;
+            color: #4a7010;
+            border-color: #bada87;
+            font-weight: 600;
+        }
+
+        button.success-light:hover,
+        .btn.success-light:hover {
+            background: #c8e6a0;
+            border-color: #a4cc6f;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="topbar">
+        <h1>NewsPage Editor</h1>
+        <button id="btn-rebuild" class="btn inverse">Rebuild Site</button>
+        <a href="/" class="btn inverse" target="_blank">View Site</a>
+    </div>
+
+    <div id="layout">
+        <nav id="sidebar">
+            <div id="sidebar-header">
+                Articles
+                <button id="btn-new" class="btn sm primary">+ New</button>
+            </div>
+            <ul id="article-list"></ul>
+        </nav>
+
+        <div id="editor-area">
+            <div id="editor-toolbar" style="display:none">
+                <span id="current-title">Untitled</span>
+                <button id="btn-upload-img" class="btn sm" title="Upload and insert an image">📷 Insert Image</button>
+                <input type="file" id="file-upload-img" accept="image/*" style="display: none;" />
+                <button id="btn-save" class="btn sm primary">Save</button>
+                <button id="btn-delete" class="btn sm danger">Delete</button>
+            </div>
+            <div id="editor-panels">
+                <div id="empty-state">← Select an article or create a new one</div>
+                <div id="editor-left" style="display:none">
+                    <div id="fm-panel">
+                        <div id="fm-header">
+                            <span class="fm-badge">YAML · Frontmatter</span>
+                            <span class="fm-hint">Article metadata</span>
+                        </div>
+                        <div id="fm-fields">
+                            <label for="fm-id">id:</label>
+                            <input id="fm-id" readonly type="text" placeholder="article-slug" />
+                            <label for="fm-title">title:</label>
+                            <input id="fm-title" type="text" placeholder="Article title" />
+                            <label for="fm-date">date:</label>
+                            <input id="fm-date" type="date" />
+                            <label for="fm-description">description:</label>
+                            <input id="fm-description" type="text" placeholder="Short description" />
+                            <label for="fm-thumbnail">thumbnail:</label>
+                            <div class="fm-upload-group">
+                                <input id="fm-thumbnail" type="text" placeholder="/uploads/..." />
+                                <button type="button" id="btn-upload-thumb" class="btn sm success-light">Upload</button>
+                                <input type="file" id="file-upload-thumb" accept="image/*" style="display:none;" />
+                            </div>
+                        </div>
+                    </div>
+                    <textarea id="md-editor" spellcheck="false"
+                        placeholder="Write your article body in Markdown…"></textarea>
+                </div>
+                <div id="preview-panel" style="display:none"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-bar" id="status-bar">Ready</div>
+
+    <div id="modal-overlay">
+        <div id="modal">
+            <h2>New Article</h2>
+            <input id="modal-title" type="text" placeholder="Article title…" />
+            <input id="modal-desc" type="text" placeholder="Short description (optional)" />
+            <div class="modal-actions">
+                <button id="modal-cancel" class="btn">Cancel</button>
+                <button id="modal-confirm" class="btn primary">Create</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/editor-bundle.js"></script>
+</body>
+
+</html>
