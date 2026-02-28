@@ -4,6 +4,7 @@ import { buildSite } from "../lib/build";
 import {
   buildArticleList,
   generateFrontmatter,
+  extractUploadedImages,
   slugify2,
   ARTICLES_DIR,
 } from "../lib/articles";
@@ -11,7 +12,7 @@ import matter from "gray-matter";
 
 const ROOT = process.cwd();
 const DIST = join(ROOT, ".newspage-dist");
-const PORT = 5000;
+const PORT = 3000;
 
 async function rebuildDist(): Promise<void> {
   await buildSite(DIST, ROOT);
@@ -38,7 +39,15 @@ async function handleApiRequest(req: Request, url: URL): Promise<Response> {
 
   // GET /api/articles
   if (resource === "articles" && req.method === "GET" && pathSegments.length === 1) {
-    const list = await buildArticleList(ROOT);
+    let list: Awaited<ReturnType<typeof buildArticleList>>;
+    try {
+      list = await buildArticleList(ROOT);
+    } catch (err) {
+      // if the articles directory doesn't exist or something else goes wrong,
+      // return an empty array rather than propagating the error to the client
+      console.warn("Error building article list:", (err as Error).message);
+      list = [];
+    }
     return Response.json(list);
   }
 
@@ -70,6 +79,8 @@ async function handleApiRequest(req: Request, url: URL): Promise<Response> {
     const id = slugify2(title);
     const filename = `${id}.md`;
     const filePath = join(ROOT, ARTICLES_DIR, filename);
+    // ensure the articles directory exists before attempting to write
+    await mkdir(join(ROOT, ARTICLES_DIR), { recursive: true });
     await Bun.write(filePath, generateFrontmatter(title, description ?? ""));
     return Response.json({ id });
   }
@@ -81,8 +92,31 @@ async function handleApiRequest(req: Request, url: URL): Promise<Response> {
     const meta = list.find((a) => a.id === id);
     if (!meta) return Response.json({ error: "Not found" }, { status: 404 });
     const { rm } = await import("fs/promises");
+
+    // Collect all /uploads/ paths used by the other articles so we don't delete
+    // images that are still referenced elsewhere.
+    const otherContent = await Promise.all(
+      list
+        .filter((a) => a.id !== id)
+        .map((a) => Bun.file(join(ROOT, ARTICLES_DIR, a.filename)).text())
+    );
+    const stillUsed = new Set(otherContent.flatMap(extractUploadedImages));
+
+    // Read the article being deleted and find its image references.
+    const content = await Bun.file(join(ROOT, ARTICLES_DIR, meta.filename)).text();
+    const toDelete = extractUploadedImages(content).filter((p) => !stillUsed.has(p));
+
+    // Delete the article file first.
     await rm(join(ROOT, ARTICLES_DIR, meta.filename));
-    return Response.json({ ok: true });
+
+    // Then remove orphaned upload files (ignore errors for missing files).
+    await Promise.all(
+      toDelete.map((urlPath) =>
+        rm(join(ROOT, urlPath.slice(1))).catch(() => {})
+      )
+    );
+
+    return Response.json({ ok: true, deletedImages: toDelete.length });
   }
 
   // POST /api/generate — rebuild

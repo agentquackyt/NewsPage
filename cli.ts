@@ -1,15 +1,11 @@
 #!/usr/bin/env bun
-// implement a cli which has following commands:
-// generate <path>
-// articles <refresh|add|remove> <?articleId>
-// serve - Serves the generated site on localhost:3000 as well as an editor site which is not in the generated site but allows editing the articles and regenerating the site on demand. The editor site should be available at localhost:3000/editor
-// config - starts a config wizard
 
 import { Command } from "commander";
 import { generate } from "./src/commands/generate";
 import { articles } from "./src/commands/articles";
 import { serve } from "./src/commands/serve";
 import { config } from "./src/commands/config";
+import { interactive } from "./src/commands/interactive";
 
 const program = new Command();
 
@@ -45,5 +41,11 @@ program
   .command("config")
   .description("Start the interactive configuration wizard (saves newspage.config.json)")
   .action(config);
+
+// If no sub-command is provided, launch the interactive menu.
+if (process.argv.length <= 2) {
+  await interactive();
+  process.exit(0);
+}
 
 program.parse(process.argv);

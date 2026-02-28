@@ -60,6 +60,7 @@ export async function buildSite(outputDir: string, cwd = ROOT): Promise<void> {
   await copyFile(join(SRC, "themes", "guardian.css"), join(outputDir, "themes", "guardian.css"));
   await copyFile(join(SRC, "themes", "times.css"), join(outputDir, "themes", "times.css"));
   await copyFile(join(SRC, "themes", "tagesschau.css"), join(outputDir, "themes", "tagesschau.css"));
+  await copyFile(join(SRC, "themes", "tech.css"), join(outputDir, "themes", "tech.css"));
 
   // Copy uploads directory for images
   try {

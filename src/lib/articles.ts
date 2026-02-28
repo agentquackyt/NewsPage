@@ -1,4 +1,5 @@
 import { join, basename } from "path";
+import { access } from "fs/promises";
 import matter from "gray-matter";
 import type { ArticleMeta } from "../types";
 
@@ -15,6 +16,17 @@ function slugify(text: string): string {
 
 export async function getArticleFiles(cwd = process.cwd()): Promise<string[]> {
   const dir = join(cwd, ARTICLES_DIR);
+
+  // If the articles directory doesn't exist yet, return an empty list instead of
+  // letting Bun.Glob.scan throw ENOENT (which would crash the dev server).
+  // Use fs/promises access() here — Bun.file().exists() is for files only and
+  // returns false for directories even when they exist.
+  try {
+    await access(dir);
+  } catch {
+    return [];
+  }
+
   const glob = new Bun.Glob("*.md");
   const files: string[] = [];
   for await (const file of glob.scan({ cwd: dir })) {
@@ -53,6 +65,21 @@ export async function buildArticleList(cwd = process.cwd()): Promise<ArticleMeta
 export async function saveArticleList(articles: ArticleMeta[], outputDir: string): Promise<void> {
   const dest = join(outputDir, "articles.json");
   await Bun.write(dest, JSON.stringify(articles, null, 2));
+}
+
+/**
+ * Extracts all /uploads/<filename> paths that are referenced by an article.
+ * Covers the frontmatter `thumbnail` field and any markdown image/link syntax.
+ */
+export function extractUploadedImages(content: string): string[] {
+  const paths = new Set<string>();
+  // match every /uploads/<anything that isn't whitespace or quotes>
+  const re = /\/uploads\/[^\s"')>]+/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(content)) !== null) {
+    paths.add(m[0]!);
+  }
+  return [...paths];
 }
 
 export function generateFrontmatter(title: string, description = ""): string {

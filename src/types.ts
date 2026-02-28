@@ -9,12 +9,12 @@ export interface ArticleMeta {
 
 export interface SiteConfig {
   title: string;
-  theme: "guardian" | "times" | "tagesschau";
+  theme: "guardian" | "times" | "tagesschau" | "tech";
   description: string;
 }
 
 export const DEFAULT_CONFIG: SiteConfig = {
   title: "NewsPage",
-  theme: "guardian",
+  theme: "tech",
   description: "A dynamic news page",
 };

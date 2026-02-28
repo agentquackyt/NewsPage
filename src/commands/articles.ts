@@ -55,6 +55,9 @@ async function add(articleId?: string): Promise<void> {
     process.exit(1);
   }
 
+  // ensure the directory exists before writing
+  await import("fs/promises").then(({ mkdir }) => mkdir(join(ROOT, ARTICLES_DIR), { recursive: true }));
+
   const content = generateFrontmatter(title);
   await Bun.write(filePath, content);
   console.log(`Created: articles/${filename}`);
