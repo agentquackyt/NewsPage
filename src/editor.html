@@ -143,8 +143,8 @@
 
         /* === Frontmatter panel === */
         #fm-panel {
-            background: #f0f6e4;
-            border-bottom: 2px solid #b5d98a;
+            background: #e4eff6;
+            border-bottom: 2px solid #8ab3d9;
             flex-shrink: 0;
         }
 
@@ -153,7 +153,7 @@
             align-items: center;
             gap: 0.6rem;
             padding: 0.45rem 0.9rem 0.35rem;
-            border-bottom: 1px solid #c8e6a0;
+            border-bottom: 1px solid #a0b0e6;
         }
 
         .fm-badge {
@@ -161,7 +161,7 @@
             font-weight: 700;
             letter-spacing: .1em;
             text-transform: uppercase;
-            background: #5a8a1f;
+            background: #1f518a;
             color: #fff;
             padding: 0.15em 0.55em;
             border-radius: 3px;
@@ -183,7 +183,7 @@
         #fm-fields label {
             font-size: 0.75rem;
             font-weight: 600;
-            color: #4a7010;
+            color: #103d70;
             font-family: 'Cascadia Code', 'Fira Code', monospace;
             white-space: nowrap;
         }
@@ -191,10 +191,10 @@
         #fm-fields input {
             font-family: 'Cascadia Code', 'Fira Code', monospace;
             font-size: 0.82rem;
-            border: 1px solid #bada87;
+            border: 1px solid #87afda;
             border-radius: 3px;
             padding: 0.2rem 0.45rem;
-            background: #f8fdf0;
+            background: #f0f6fd;
             color: #233;
             outline: none;
             width: 100%;
@@ -202,7 +202,7 @@
         }
 
         #fm-fields input:focus {
-            border-color: #5a8a1f;
+            border-color: #1f568a;
             background: #fff;
         }
 
@@ -238,6 +238,7 @@
             background: #f0f6e4;
             border-bottom: 2px solid #b5d98a;
             padding: 1rem 2rem 0.9rem;
+            display: none;
         }
 
         .preview-fm-header .pfm-badge {
@@ -245,7 +246,7 @@
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: .1em;
-            color: #5a8a1f;
+            color: #1f4a8a;
             margin-bottom: 0.5rem;
         }
 
@@ -434,7 +435,7 @@
 
         button.sm,
         .btn.sm {
-            padding: 0.25rem 0.65rem;
+            padding: 0.35rem 0.8rem;
             font-size: 0.8rem;
         }
 
@@ -454,16 +455,16 @@
 
         button.success-light,
         .btn.success-light {
-            background: #dcefc2;
-            color: #4a7010;
-            border-color: #bada87;
+            background: #c2deef;
+            color: #104b70;
+            border-color: #87b3da;
             font-weight: 600;
         }
 
         button.success-light:hover,
         .btn.success-light:hover {
-            background: #c8e6a0;
-            border-color: #a4cc6f;
+            background: #a0cfe6;
+            border-color: #6fa4cc;
         }
     </style>
 </head>
@@ -479,7 +480,7 @@
         <nav id="sidebar">
             <div id="sidebar-header">
                 Articles
-                <button id="btn-new" class="btn sm primary">+ New</button>
+                <button id="btn-new" class="btn primary">+ New</button>
             </div>
             <ul id="article-list"></ul>
         </nav>
@@ -487,7 +488,7 @@
         <div id="editor-area">
             <div id="editor-toolbar" style="display:none">
                 <span id="current-title">Untitled</span>
-                <button id="btn-upload-img" class="btn sm" title="Upload and insert an image">📷 Insert Image</button>
+                <button id="btn-upload-img" class="btn sm" title="Upload and insert an image">Insert Image</button>
                 <input type="file" id="file-upload-img" accept="image/*" style="display: none;" />
                 <button id="btn-save" class="btn sm primary">Save</button>
                 <button id="btn-delete" class="btn sm danger">Delete</button>
@@ -500,8 +501,6 @@
                             <span class="fm-badge">Article metadata</span>
                         </div>
                         <div id="fm-fields">
-                            <label for="fm-id">id:</label>
-                            <input id="fm-id" readonly type="text" placeholder="article-slug" />
                             <label for="fm-title">title:</label>
                             <input id="fm-title" type="text" placeholder="Article title" />
                             <label for="fm-date">date:</label>

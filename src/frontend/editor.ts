@@ -97,7 +97,7 @@ function setStatus(msg: string, duration = 3000): void {
 }
 
 function getFM(): FM {
-  return { id: fmId.value, title: fmTitle.value, date: fmDate.value, description: fmDesc.value, thumbnail: fmThumbnail.value, extra: fmExtra };
+  return { id: slugify(fmTitle.value), title: fmTitle.value, date: fmDate.value, description: fmDesc.value, thumbnail: fmThumbnail.value, extra: fmExtra };
 }
 
 function formatDateDisplay(iso: string): string {
@@ -135,7 +135,6 @@ async function openArticle(id: string): Promise<void> {
   const { content } = (await res.json()) as { content: string };
 
   const { fm, body } = parseFrontmatter(content);
-  fmId.value    = fm.id;
   fmTitle.value = fm.title;
   fmDate.value  = fm.date;
   fmDesc.value  = fm.description;

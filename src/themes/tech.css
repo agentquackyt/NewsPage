@@ -260,7 +260,7 @@ body {
 
 .article-page .article-body pre code { background: none; padding: 0; color: inherit; }
 
-.article-page .article-body img { 
+.article-page .article-body img, .article-page .article-body video { 
   max-width: 100%; 
   height: auto; 
   margin: 2.5rem 0; 
