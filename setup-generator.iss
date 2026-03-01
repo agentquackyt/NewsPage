@@ -28,12 +28,16 @@ SetupIconFile=C:\Users\jonij\Downloads\clarify_24dp_E3E3E3_FILL1_wght400_GRAD0_o
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
+ChangesEnvironment=yes
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
+
+[Registry]
+Root: HKCU; Subkey: "Environment"; ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}"; Check: NeedsAddPath('{app}')
 
 [Files]
 Source: "Q:\2026\NewsPage\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
@@ -52,3 +56,16 @@ Type: filesandordirs; Name: "{app}\articles"
 Type: filesandordirs; Name: "{app}\uploads"
 Type: filesandordirs; Name: "{app}\.newpage-dist"
 Type: filesandordirs; Name: "{app}"
+
+[Code]
+function NeedsAddPath(Param: string): boolean;
+var
+  OrigPath: string;
+begin
+  if not RegQueryStringValue(HKEY_CURRENT_USER, 'Environment', 'Path', OrigPath) then
+  begin
+    Result := True;
+    exit;
+  end;
+  Result := Pos(';' + Param + ';', ';' + OrigPath + ';') = 0;
+end;

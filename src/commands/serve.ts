@@ -1,6 +1,7 @@
 import { join } from "path";
 import { mkdir } from "fs/promises";
 import { buildSite } from "../lib/build";
+import { INSTALL_SRC } from "../lib/env";
 import {
   buildArticleList,
   generateFrontmatter,
@@ -22,7 +23,7 @@ async function rebuildDist(): Promise<void> {
 async function serveEditorBundle(): Promise<Response> {
   // Build the editor bundle on demand
   const result = await Bun.build({
-    entrypoints: [join(ROOT, "src", "frontend", "editor.ts")],
+    entrypoints: [join(INSTALL_SRC, "frontend", "editor.ts")],
     outdir: DIST,
     naming: "editor-bundle.js",
     target: "browser",
@@ -173,10 +174,10 @@ export async function serve(): Promise<void> {
     uiWarn(`Initial build failed (continuing anyway): ${(err as Error).message}`);
   }
 
-  const editorHtml = await Bun.file(join(ROOT, "src", "editor.html")).text();
+  const editorHtml = await Bun.file(join(INSTALL_SRC, "editor.html")).text();
   // Build editor bundle once at startup
   await Bun.build({
-    entrypoints: [join(ROOT, "src", "frontend", "editor.ts")],
+    entrypoints: [join(INSTALL_SRC, "frontend", "editor.ts")],
     outdir: DIST,
     naming: "editor-bundle.js",
     target: "browser",

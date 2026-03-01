@@ -2,9 +2,7 @@ import { join, dirname } from "path";
 import { cp, mkdir } from "fs/promises";
 import { buildArticleList, saveArticleList, ARTICLES_DIR } from "./articles";
 import { loadConfig } from "./config";
-
-const ROOT = process.cwd();
-const SRC = join(ROOT, "src");
+import { INSTALL_SRC } from "./env";
 
 async function copyFile(src: string, dest: string): Promise<void> {
   await mkdir(dirname(dest), { recursive: true });
@@ -19,7 +17,7 @@ async function processHtml(template: string, replacements: Record<string, string
   return html;
 }
 
-export async function buildSite(outputDir: string, cwd = ROOT): Promise<void> {
+export async function buildSite(outputDir: string, cwd = process.cwd()): Promise<void> {
   const config = await loadConfig(cwd);
   const articles = await buildArticleList(cwd);
 
@@ -28,8 +26,8 @@ export async function buildSite(outputDir: string, cwd = ROOT): Promise<void> {
   // Bundle frontend scripts with Bun.build
   const result = await Bun.build({
     entrypoints: [
-      join(SRC, "frontend", "index.ts"),
-      join(SRC, "frontend", "article.ts"),
+      join(INSTALL_SRC, "frontend", "index.ts"),
+      join(INSTALL_SRC, "frontend", "article.ts"),
     ],
     outdir: join(outputDir, "js"),
     minify: true,
@@ -50,17 +48,17 @@ export async function buildSite(outputDir: string, cwd = ROOT): Promise<void> {
     THEME: config.theme,
   };
 
-  const indexHtml = await processHtml(join(SRC, "index.html"), replacements);
+  const indexHtml = await processHtml(join(INSTALL_SRC, "index.html"), replacements);
   await Bun.write(join(outputDir, "index.html"), indexHtml);
 
-  const articleHtml = await processHtml(join(SRC, "article.html"), replacements);
+  const articleHtml = await processHtml(join(INSTALL_SRC, "article.html"), replacements);
   await Bun.write(join(outputDir, "article.html"), articleHtml);
 
   // Copy CSS themes
-  await copyFile(join(SRC, "themes", "guardian.css"), join(outputDir, "themes", "guardian.css"));
-  await copyFile(join(SRC, "themes", "times.css"), join(outputDir, "themes", "times.css"));
-  await copyFile(join(SRC, "themes", "tagesschau.css"), join(outputDir, "themes", "tagesschau.css"));
-  await copyFile(join(SRC, "themes", "tech.css"), join(outputDir, "themes", "tech.css"));
+  await copyFile(join(INSTALL_SRC, "themes", "guardian.css"), join(outputDir, "themes", "guardian.css"));
+  await copyFile(join(INSTALL_SRC, "themes", "times.css"), join(outputDir, "themes", "times.css"));
+  await copyFile(join(INSTALL_SRC, "themes", "tagesschau.css"), join(outputDir, "themes", "tagesschau.css"));
+  await copyFile(join(INSTALL_SRC, "themes", "tech.css"), join(outputDir, "themes", "tech.css"));
 
   // Copy uploads directory for images
   try {
