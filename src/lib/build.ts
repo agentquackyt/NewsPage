@@ -54,11 +54,20 @@ export async function buildSite(outputDir: string, cwd = process.cwd()): Promise
   const articleHtml = await processHtml(join(INSTALL_SRC, "article.html"), replacements);
   await Bun.write(join(outputDir, "article.html"), articleHtml);
 
-  // Copy CSS themes
-  await copyFile(join(INSTALL_SRC, "themes", "guardian.css"), join(outputDir, "themes", "guardian.css"));
-  await copyFile(join(INSTALL_SRC, "themes", "times.css"), join(outputDir, "themes", "times.css"));
-  await copyFile(join(INSTALL_SRC, "themes", "tagesschau.css"), join(outputDir, "themes", "tagesschau.css"));
-  await copyFile(join(INSTALL_SRC, "themes", "tech.css"), join(outputDir, "themes", "tech.css"));
+  // Copy the CSS stylesheet but bundle it
+  const cssResult = await Bun.build({
+    entrypoints: [join(INSTALL_SRC, "themes", config.theme + ".css")],
+    outdir: join(outputDir, "themes"),
+    minify: true,
+    target: "browser",
+  });
+
+  if (!cssResult.success) {
+    for (const log of cssResult.logs) {
+      console.error(log);
+    }
+    throw new Error("CSS build failed");
+  }
 
   // Copy uploads directory for images
   try {

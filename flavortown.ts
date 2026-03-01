@@ -105,7 +105,6 @@ async function fetchWithKey(url: string, key: string): Promise<any> {
     return res.json();
 }
 
-// These are replaced at runtime inside init() once the key is known
 let getUserData:  () => Promise<FlavortownUser | FlavortownError>        = () => Promise.reject("not initialised");
 let getProjectFn: (id: number) => Promise<FlavortownProject | FlavortownError>     = () => Promise.reject("not initialised");
 let getDevlogFn:  (id: number) => Promise<FlavortownDevlogList | FlavortownError>  = () => Promise.reject("not initialised");
@@ -120,7 +119,6 @@ async function init() {
         process.exit(1);
     }
 
-    // Patch fetch helpers to use the key captured at runtime
     getUserData   = () => fetchWithKey("https://flavortown.hackclub.com/api/v1/users/me", flavortown_key);
     getProjectFn  = (id) => fetchWithKey(`https://flavortown.hackclub.com/api/v1/projects/${id}`, flavortown_key);
     getDevlogFn   = (id) => fetchWithKey(`https://flavortown.hackclub.com/api/v1/projects/${id}/devlogs`, flavortown_key);
@@ -153,6 +151,12 @@ async function init() {
         articles.push({ project, devlogs });
     }
     renderArticles();
+
+    // Implement press any key to exit
+    info("\nPress any key to exit.");
+    process.stdin.setRawMode(true);
+    process.stdin.resume();
+    process.stdin.on("data", process.exit.bind(process, 0));
 }
 
 function generateArticleHeader(article: {
