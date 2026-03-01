@@ -3,8 +3,8 @@
 This is a simple blog/news page generator written in TypeScript. It reads devlog files from a specified directory, extracts the latest entries, and generates an HTML page to display them within milliseconds.
 
 ## Getting Started
-### Fast Setup
-1. Go to the [releases](https://github.com/agentquackyt?tab=packages&repo_name=NewsPage) and download the latest installer. Run the installer and follow the prompts to set up the application on your system. 
+### Fast Setups
+1. Go to the [releases](https://github.com/agentquackyt/NewsPage/releases) and download the latest installer. Run the installer and follow the prompts to set up the application on your system. 
 2. Once installed, you may then need to open in a terminal window in your project directory and run `newspage` to launch the CLI tool.
 3. If you are first starting the application, you probably want to select `Configure site` and follow the prompts to set up your site configuration. This will create a `newspage.config.json` file in the current directory with your settings.
 4. Then select `Start dev server` to start the development server. You then open the provided editor URL in your browser to see the generated news page. 
