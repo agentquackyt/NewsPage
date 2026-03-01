@@ -9,7 +9,7 @@ export interface ArticleMeta {
 
 export interface SiteConfig {
   title: string;
-  theme: "guardian" | "times" | "tagesschau" | "tech";
+  theme: string;
   description: string;
 }
 

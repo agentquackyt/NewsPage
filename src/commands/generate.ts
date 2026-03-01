@@ -1,14 +1,15 @@
 import { resolve } from "path";
 import { buildSite } from "../lib/build";
+import { success, error, info, DIM, RESET } from "../lib/ui";
 
 export async function generate(outputPath: string): Promise<void> {
   const dest = resolve(outputPath);
-  console.log(`Generating site → ${dest}`);
+  info(`Generating site ${DIM}→${RESET} ${dest}`);
   try {
     await buildSite(dest);
-    console.log("Done.");
+    success("Build complete.");
   } catch (err) {
-    console.error("Build failed:", (err as Error).message);
+    error(`Build failed: ${(err as Error).message}`);
     process.exit(1);
   }
 }

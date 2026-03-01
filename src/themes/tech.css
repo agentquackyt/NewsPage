@@ -263,7 +263,7 @@ body {
 .article-page .article-body img, .article-page .article-body video { 
   max-width: 100%; 
   height: auto; 
-  margin: 2.5rem 0; 
+  margin: 1rem 0; 
   border: 1px solid var(--border);
   border-radius: 1rem;
 }

@@ -9,6 +9,7 @@ import {
   ARTICLES_DIR,
 } from "../lib/articles";
 import matter from "gray-matter";
+import { info as uiInfo, warn as uiWarn, success as uiSuccess } from "../lib/ui";
 
 const ROOT = process.cwd();
 const DIST = join(ROOT, ".newspage-dist");
@@ -163,12 +164,13 @@ async function serveStaticFile(pathname: string): Promise<Response> {
 
 export async function serve(): Promise<void> {
   // Initial build
-  console.log("Building site…");
+  uiInfo("Building site…");
   await mkdir(DIST, { recursive: true });
   try {
     await rebuildDist();
+    uiSuccess("Initial build done.");
   } catch (err) {
-    console.warn("Initial build failed (continuing anyway):", (err as Error).message);
+    uiWarn(`Initial build failed (continuing anyway): ${(err as Error).message}`);
   }
 
   const editorHtml = await Bun.file(join(ROOT, "src", "editor.html")).text();
@@ -181,9 +183,10 @@ export async function serve(): Promise<void> {
     minify: false,
   });
 
-  console.log(`\nServer running:`);
-  console.log(`  Site:   http://localhost:${PORT}/`);
-  console.log(`  Editor: http://localhost:${PORT}/editor`);
+  process.stdout.write(`\n`);
+  uiSuccess(`Server running`);
+  uiInfo(`Site:   http://localhost:${PORT}/`);
+  uiInfo(`Editor: http://localhost:${PORT}/editor`);
 
   Bun.serve({
     port: PORT,

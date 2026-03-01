@@ -8,14 +8,15 @@ import {
   slugify2,
   ARTICLES_DIR,
 } from "../lib/articles";
+import { ask, success, error, info, CYAN, DIM, BOLD, RESET } from "../lib/ui";
 
 const ROOT = process.cwd();
 
 async function refresh(): Promise<void> {
   const articles = await buildArticleList(ROOT);
-  console.log(`Refreshed ${articles.length} article(s):`);
+  process.stdout.write(`${BOLD}Refreshed ${articles.length} article(s):${RESET}\n`);
   for (const a of articles) {
-    console.log(`  [${a.date}] ${a.title}  (${a.filename})`);
+    info(`${DIM}[${a.date}]${RESET} ${CYAN}${a.title}${RESET}  ${DIM}(${a.filename})${RESET}`);
   }
 }
 
@@ -23,25 +24,13 @@ async function add(articleId?: string): Promise<void> {
   let title: string;
 
   if (articleId) {
-    // Treat provided id as the title if it contains spaces, else use as slug
     title = articleId.includes("-") ? articleId.replace(/-/g, " ") : articleId;
   } else {
-    // Prompt for title
-    process.stdout.write("Article title: ");
-    title = (await new Promise<string>((resolve) => {
-      let input = "";
-      process.stdin.resume();
-      process.stdin.setEncoding("utf8");
-      process.stdin.once("data", (chunk) => {
-        input = (chunk as string).trim();
-        process.stdin.pause();
-        resolve(input);
-      });
-    }));
+    title = await ask("Article title: ");
   }
 
   if (!title) {
-    console.error("Title cannot be empty.");
+    error("Title cannot be empty.");
     process.exit(1);
   }
 
@@ -51,31 +40,25 @@ async function add(articleId?: string): Promise<void> {
   const file = Bun.file(filePath);
 
   if (await file.exists()) {
-    console.error(`Article already exists: ${filename}`);
+    error(`Article already exists: ${filename}`);
     process.exit(1);
   }
 
-  // ensure the directory exists before writing
   await import("fs/promises").then(({ mkdir }) => mkdir(join(ROOT, ARTICLES_DIR), { recursive: true }));
 
   const content = generateFrontmatter(title);
   await Bun.write(filePath, content);
-  console.log(`Created: articles/${filename}`);
+  success(`Created: articles/${filename}`);
 }
 
 async function remove(articleId?: string): Promise<void> {
   if (!articleId) {
-    console.error("Usage: newspage articles remove <articleId>");
+    error("Usage: newspage articles remove <articleId>");
     process.exit(1);
   }
 
   const files = await getArticleFiles(ROOT);
-  const target = files.find((f) => {
-    const content = Bun.file(join(ROOT, ARTICLES_DIR, f));
-    return f === `${articleId}.md` || f === articleId;
-  });
 
-  // Also search by id frontmatter
   let matched: string | undefined;
   for (const f of files) {
     if (f === `${articleId}.md` || f === articleId) {
@@ -91,12 +74,12 @@ async function remove(articleId?: string): Promise<void> {
   }
 
   if (!matched) {
-    console.error(`Article not found: ${articleId}`);
+    error(`Article not found: ${articleId}`);
     process.exit(1);
   }
 
   await rm(join(ROOT, ARTICLES_DIR, matched));
-  console.log(`Removed: articles/${matched}`);
+  success(`Removed: articles/${matched}`);
 }
 
 export async function articles(action: string, articleId?: string): Promise<void> {
@@ -111,7 +94,7 @@ export async function articles(action: string, articleId?: string): Promise<void
       await remove(articleId);
       break;
     default:
-      console.error(`Unknown action: ${action}. Use: refresh | add | remove`);
+      error(`Unknown action: ${action}. Use: refresh | add | remove`);
       process.exit(1);
   }
 }

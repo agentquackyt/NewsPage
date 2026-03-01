@@ -155,7 +155,7 @@ body {
 .article-page .article-body code { background: #f5f2e9; padding: .15em .4em; border-radius: 2px; font-size: .88em; font-family: monospace; }
 .article-page .article-body pre { background: #f5f2e9; padding: 1rem; overflow-x: auto; margin-bottom: 1.2rem; border: 1px solid var(--border); }
 .article-page .article-body pre code { background: none; padding: 0; }
-.article-page .article-body img { max-width: 100%; height: auto; margin: 0.5rem 0; }
+.article-page .article-body img, video { max-width: 100%; height: auto; margin: 0.5rem 0; }
 
 /* === FOOTER === */
 .site-footer {

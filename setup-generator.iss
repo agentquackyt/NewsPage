@@ -46,3 +46,9 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: de
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
+
+[UninstallDelete]
+Type: filesandordirs; Name: "{app}\articles"
+Type: filesandordirs; Name: "{app}\uploads"
+Type: filesandordirs; Name: "{app}\.newpage-dist"
+Type: filesandordirs; Name: "{app}"

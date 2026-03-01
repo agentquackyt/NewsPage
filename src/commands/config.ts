@@ -1,27 +1,23 @@
 import { loadConfig, saveConfig } from "../lib/config";
 import type { SiteConfig } from "../types";
-
-function ask(question: string): Promise<string> {
-  return new Promise((resolve) => {
-    process.stdout.write(question);
-    process.stdin.resume();
-    process.stdin.setEncoding("utf8");
-    process.stdin.once("data", (chunk) => {
-      process.stdin.pause();
-      resolve((chunk as string).trim());
-    });
-  });
-}
-
-function pickOrDefault(input: string, fallback: string): string {
-  return input.length > 0 ? input : fallback;
-}
+import { join } from "path";
+import { readdir } from "node:fs/promises";
+import {
+  ask,
+  pickOrDefault,
+  selectFromList,
+  header,
+  hint,
+  success,
+  warn,
+  RESET,
+} from "../lib/ui";
 
 export async function config(): Promise<void> {
   const current = await loadConfig();
 
-  console.log("\n── NewsPage Config Wizard ──");
-  console.log("Press Enter to keep the current value.\n");
+  header("NewsPage Config Wizard");
+  hint("Press Enter to keep the current value.\n");
 
   const title = pickOrDefault(
     await ask(`Site title [${current.title}]: `),
@@ -33,17 +29,28 @@ export async function config(): Promise<void> {
     current.description
   );
 
-  let theme = current.theme;
-  const themeInput = await ask(`Theme (guardian | times | tagesschau) [${current.theme}]: `);
-  if (themeInput === "guardian" || themeInput === "times" || themeInput === "tagesschau") {
-    theme = themeInput as any;
-  } else if (themeInput.length > 0) {
-    console.warn(`Unknown theme "${themeInput}", keeping "${current.theme}".`);
+  let availableThemes: string[] = [];
+  try {
+    const themesDir = join(__dirname, "..", "themes");
+    const files = await readdir(themesDir);
+    availableThemes = files
+      .filter((file) => file.endsWith(".css"))
+      .map((file) => file.replace(".css", ""));
+  } catch {
+    availableThemes = ["guardian", "times", "tagesschau", "tech"];
   }
+
+  process.stdout.write(RESET + "\n");
+  const theme = await selectFromList(
+    "Select theme (↑/↓, Enter to confirm):",
+    availableThemes,
+    current.theme
+  );
 
   const newConfig: SiteConfig = { title, description, theme };
   await saveConfig(newConfig);
 
-  console.log("\n✓ Config saved to newspage.config.json");
-  console.log(JSON.stringify(newConfig, null, 2));
+  success("Config saved to newspage.config.json");
+  process.stdout.write(JSON.stringify(newConfig, null, 2) + "\n");
 }
+
