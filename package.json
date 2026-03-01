@@ -2,10 +2,10 @@
   "name": "newspage",
   "private": true,
   "scripts": {
+    "start": "bun cli.ts",
     "serve": "bun cli.ts serve",
     "generate": "bun cli.ts generate ./dist",
     "config": "bun cli.ts config",
-    "articles": "bun cli.ts articles",
     "bundle": "bun build --compile --minify cli.ts --outfile newspage",
     "flavortown": "bun build --compile --minify flavortown.ts --outfile Output/flavortown"
   },
