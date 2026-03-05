@@ -1,19 +1,35 @@
-/* Tagesschau Theme — inspired by ARD Tagesschau */
+@import url('https://fonts.googleapis.com/css2?family=Faculty+Glyphic&display=swap');
+
 :root {
   --accent: #ffffff;
   /* Tagesschau dark blue */
-  --accent-light: #0267a6;
+  --accent-light: #a50f0f;
   /* Tagesschau medium blue */
-  --accent-pale: #d3e9f5;
-  --text: #cde2ed;
-  --muted: #c9ddec;
+  --accent-pale: #f3b5b5;
+  --text: #fae3e3;
+  --muted: #ecc9c9;
   --border: #cccccc;
-  --bg: #00123d;
+  --bg: #320000;
   --card-bg: transparent;
-  --header-bg: #00305d;
+  --header-bg: #5d0000;
   --header-text: #ffffff;
-  --font-sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  --font-display: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-sans:"Faculty Glyphic", sans-serif;
+  --font-display: "Faculty Glyphic", sans-serif;
+}
+
+/* SCROLL BAR fits theme*/
+::-webkit-scrollbar {
+  width: 6px;
+  margin: 2px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--header-bg);
+  border-radius: 15px;
 }
 
 *,
@@ -49,18 +65,14 @@ body {
   font-weight: 700;
   line-height: 1;
   margin: 0 0 0.25rem;
-  text-transform: lowercase;
-}
+  text-transform: capitalize;
 
-.site-title::after {
-  content: ".";
-  color: #1a8ed2;
-  /* Tagesschau light blue dot */
 }
 
 .site-tagline {
   font-size: 0.9rem;
-  color: #a0c4db;
+  font-family: var(--font-display);
+  color: #dba0a0;
   margin: 0;
   font-weight: 500;
 }
@@ -110,11 +122,11 @@ body {
   object-fit: cover;
   aspect-ratio: 16/9;
   border-radius: 1rem;
-  transition: .3s ease-in-out;
+  transition: .15s ease-in-out;
 }
 
-.article-card:hover .card-thumb img {
-  filter: grayscale(.4) contrast(1.1);
+.article-card:not(:hover) .card-thumb img {
+  filter: grayscale(.8);
 }
 
 
@@ -183,7 +195,7 @@ body {
   font-weight: 700;
   line-height: 1.2;
   margin: 0 0 1rem;
-  color: var(--text);
+  color: var(--accent);
 }
 
 .article-page .article-description {

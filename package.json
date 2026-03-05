@@ -6,7 +6,7 @@
     "serve": "bun cli.ts serve",
     "generate": "bun cli.ts generate ./dist",
     "config": "bun cli.ts config",
-    "bundle": "bun build --compile --minify cli.ts --outfile newspage",
+    "bundle": "bun build --compile --minify --windows-icon=./AppIcon.ico cli.ts --outfile newspage",
     "flavortown": "bun build --compile --minify flavortown.ts --outfile Output/flavortown"
   },
   "devDependencies": {
